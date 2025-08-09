@@ -123,7 +123,7 @@ do {                                                    \
 
 #define WCD_MBHC_JACK_MASK (SND_JACK_HEADSET | SND_JACK_OC_HPHL | \
 			   SND_JACK_OC_HPHR | SND_JACK_LINEOUT | \
-			   SND_JACK_MECHANICAL | \
+			   SND_JACK_MECHANICAL | SND_JACK_MICROPHONE2 | \
 			   SND_JACK_UNSUPPORTED)
 
 #define WCD_MBHC_JACK_BUTTON_MASK (SND_JACK_BTN_0 | SND_JACK_BTN_1 | \
@@ -521,6 +521,8 @@ struct wcd_mbhc_cb {
 	bool (*mbhc_get_moisture_status)(struct wcd_mbhc *mbhc);
 	void (*mbhc_moisture_polling_ctrl)(struct wcd_mbhc *mbhc, bool enable);
 	void (*mbhc_moisture_detect_en)(struct wcd_mbhc *mbhc, bool enable);
+	/* lct modify for 05514178 */
+	void (*mbhc_test_ctrl)(struct wcd_mbhc *mbhc, bool enable);
 };
 
 struct wcd_mbhc_fn {

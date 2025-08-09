@@ -40,9 +40,9 @@
 #include "sde_core_irq.h"
 #include "sde_hw_top.h"
 #include "sde_hw_qdss.h"
-
-#if defined(CONFIG_PXLW_IRIS)
-#include "iris/dsi_iris6_api.h"
+#ifdef CONFIG_TARGET_PROJECT_K7T
+#include "dsi_panel.h"
+#include "dsi_display.h"
 #endif
 
 #define SDE_DEBUG_ENC(e, fmt, ...) SDE_DEBUG("enc%d " fmt,\
@@ -4955,11 +4955,6 @@ int sde_encoder_prepare_for_kickoff(struct drm_encoder *drm_enc,
 	if (needs_hw_reset)
 		sde_encoder_needs_hw_reset(drm_enc);
 
-#if defined(CONFIG_PXLW_IRIS)
-	if (sde_enc->num_phys_encs > 0)
-		iris_prepare_for_kickoff(sde_enc->phys_encs[0]);
-#endif
-
 	_sde_encoder_update_master(drm_enc, params);
 
 	_sde_encoder_update_roi(drm_enc);
@@ -5041,6 +5036,10 @@ void sde_encoder_kickoff(struct drm_encoder *drm_enc, bool is_error)
 	struct sde_encoder_phys *phys;
 	ktime_t wakeup_time;
 	unsigned int i;
+#ifdef CONFIG_TARGET_PROJECT_K7T
+	struct sde_connector *sde_conn;
+	struct dsi_display *display;
+#endif
 
 	if (!drm_enc) {
 		SDE_ERROR("invalid encoder\n");
@@ -5049,15 +5048,27 @@ void sde_encoder_kickoff(struct drm_encoder *drm_enc, bool is_error)
 	SDE_ATRACE_BEGIN("encoder_kickoff");
 	sde_enc = to_sde_encoder_virt(drm_enc);
 
+#ifdef CONFIG_TARGET_PROJECT_K7T
+	sde_conn = to_sde_connector(sde_enc->cur_master->connector);
+        if (!sde_conn)
+		SDE_ERROR("fps sde_encoder_kickoff sde_conn is null\n");
+	display = sde_conn->display;
+        if (!display)
+		SDE_ERROR("fps sde_encoder_kickoff display is null\n");
+#endif
+
 	SDE_DEBUG_ENC(sde_enc, "\n");
 
 	/* create a 'no pipes' commit to release buffers on errors */
 	if (is_error)
 		_sde_encoder_reset_ctl_hw(drm_enc);
 
-#if defined(CONFIG_PXLW_IRIS)
-	if (sde_enc->num_phys_encs > 0)
-		iris_kickoff(sde_enc->phys_encs[0]);
+#ifdef CONFIG_TARGET_PROJECT_K7T
+	if (display->panel->panel_initialized &&
+			display->panel->cur_mode->timing.refresh_rate == 60 &&
+			(display->panel->dsi_refresh_flag == 90)) {
+		dsi_set_backlight_control(display->panel, display->panel->cur_mode);
+	}
 #endif
 
 	/* All phys encs are ready to go, trigger the kickoff */
@@ -6334,16 +6345,3 @@ void sde_encoder_recovery_events_handler(struct drm_encoder *encoder,
 	sde_enc = to_sde_encoder_virt(encoder);
 	sde_enc->recovery_events_enabled = enabled;
 }
-
-#if defined(CONFIG_PXLW_IRIS)
-bool sde_encoder_is_disabled(struct drm_encoder *drm_enc)
-{
-	struct sde_encoder_virt *sde_enc;
-	struct sde_encoder_phys *phys;
-
-	sde_enc = to_sde_encoder_virt(drm_enc);
-	phys = sde_enc->phys_encs[0];
-	return (phys->enable_state == SDE_ENC_DISABLED);
-}
-#endif
-

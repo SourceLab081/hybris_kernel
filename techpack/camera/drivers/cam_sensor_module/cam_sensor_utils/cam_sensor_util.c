@@ -289,11 +289,10 @@ static int32_t cam_sensor_handle_random_read(
 	struct cam_buf_io_cfg *io_cfg)
 {
 	struct i2c_settings_list *i2c_list;
-	int32_t rc = 0, cnt = 0, payload_count = 0;
+	int32_t rc = 0, cnt = 0;
 
-	payload_count = cmd_i2c_random_rd->header.count;
 	i2c_list = cam_sensor_get_i2c_ptr(i2c_reg_settings,
-		payload_count);
+		cmd_i2c_random_rd->header.count);
 	if ((i2c_list == NULL) ||
 		(i2c_list->i2c_settings.reg_setting == NULL)) {
 		CAM_ERR(CAM_SENSOR,
@@ -308,7 +307,7 @@ static int32_t cam_sensor_handle_random_read(
 	} else {
 		*cmd_length_in_bytes = sizeof(struct i2c_rdwr_header) +
 			(sizeof(struct cam_cmd_read) *
-			payload_count);
+			(cmd_i2c_random_rd->header.count));
 		i2c_list->op_code = CAM_SENSOR_I2C_READ_RANDOM;
 		i2c_list->i2c_settings.addr_type =
 			cmd_i2c_random_rd->header.addr_type;
@@ -317,7 +316,8 @@ static int32_t cam_sensor_handle_random_read(
 		i2c_list->i2c_settings.size =
 			cmd_i2c_random_rd->header.count;
 
-		for (cnt = 0; cnt < payload_count; cnt++) {
+		for (cnt = 0; cnt < (cmd_i2c_random_rd->header.count);
+			cnt++) {
 			i2c_list->i2c_settings.reg_setting[cnt].reg_addr =
 				cmd_i2c_random_rd->data_read[cnt].reg_data;
 		}
@@ -1701,29 +1701,6 @@ int cam_sensor_util_init_gpio_pin_tbl(
 		rc = 0;
 	}
 
-	/* MODIFIED-BEGIN by yixiang.wu, 2021-01-05,BUG-10277816*/
-	rc = of_property_read_u32(of_node, "gpio-custom3", &val);
-	if (rc != -EINVAL) {
-		if (rc < 0) {
-			CAM_ERR(CAM_SENSOR,
-				"read gpio-custom3 failed rc %d", rc);
-			goto free_gpio_info;
-		} else if (val >= gpio_array_size) {
-			CAM_ERR(CAM_SENSOR, "gpio-custom3 invalid %d", val);
-			rc = -EINVAL;
-			goto free_gpio_info;
-		}
-		gpio_num_info->gpio_num[SENSOR_CUSTOM_GPIO3] =
-			gconf->cam_gpio_common_tbl[val].gpio;
-		gpio_num_info->valid[SENSOR_CUSTOM_GPIO3] = 1;
-
-		CAM_DBG(CAM_SENSOR, "gpio-custom3 %d",
-			gpio_num_info->gpio_num[SENSOR_CUSTOM_GPIO3]);
-	} else {
-		rc = 0;
-	}
-	/* MODIFIED-END by yixiang.wu,BUG-10277816*/
-
 	return rc;
 
 free_gpio_info:
@@ -1881,11 +1858,6 @@ int cam_sensor_core_power_up(struct cam_sensor_power_ctrl_t *ctrl,
 	if (soc_info->use_shared_clk)
 		cam_res_mgr_shared_clk_config(true);
 
-	if (!strcmp(soc_info->dev_name,"ac4a000.qcom,cci0:qcom,ois@0")) {
-		CAM_DBG(CAM_SENSOR, "OIS no need power up again!");
-		return 0;
-	}
-	
 	ret = msm_camera_pinctrl_init(&(ctrl->pinctrl_info), ctrl->dev);
 	if (ret < 0) {
 		/* Some sensor subdev no pinctrl. */
@@ -2001,7 +1973,6 @@ int cam_sensor_core_power_up(struct cam_sensor_power_ctrl_t *ctrl,
 		case SENSOR_STANDBY:
 		case SENSOR_CUSTOM_GPIO1:
 		case SENSOR_CUSTOM_GPIO2:
-		case SENSOR_CUSTOM_GPIO3: // MODIFIED by yixiang.wu, 2021-01-05,BUG-10277816
 			if (no_gpio) {
 				CAM_ERR(CAM_SENSOR, "request gpio failed");
 				goto power_up_failed;
@@ -2131,7 +2102,6 @@ power_up_failed:
 		case SENSOR_STANDBY:
 		case SENSOR_CUSTOM_GPIO1:
 		case SENSOR_CUSTOM_GPIO2:
-		case SENSOR_CUSTOM_GPIO3: // MODIFIED by yixiang.wu, 2021-01-05,BUG-10277816
 			if (!gpio_num_info)
 				continue;
 			if (!gpio_num_info->valid
@@ -2299,7 +2269,6 @@ int cam_sensor_util_power_down(struct cam_sensor_power_ctrl_t *ctrl,
 		case SENSOR_STANDBY:
 		case SENSOR_CUSTOM_GPIO1:
 		case SENSOR_CUSTOM_GPIO2:
-		case SENSOR_CUSTOM_GPIO3: // MODIFIED by yixiang.wu, 2021-01-05,BUG-10277816
 
 			if (!gpio_num_info->valid[pd->seq_type])
 				continue;

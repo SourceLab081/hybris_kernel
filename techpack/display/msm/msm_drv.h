@@ -44,9 +44,6 @@
 #include <drm/drm_plane_helper.h>
 #include <drm/drm_fb_helper.h>
 #include <drm/msm_drm.h>
-#if defined(CONFIG_PXLW_IRIS)
-#include <drm/msm_drm_iris.h>
-#endif
 #include <drm/drm_gem.h>
 
 #include "sde_power_handle.h"
@@ -76,6 +73,10 @@ struct msm_gem_vma;
 
 #define TEARDOWN_DEADLOCK_RETRY_MAX 5
 
+#ifdef CONFIG_TARGET_PROJECT_C3Q
+extern atomic_t resume_pending;
+extern wait_queue_head_t resume_wait_q;
+#endif
 struct msm_file_private {
 	rwlock_t queuelock;
 	struct list_head submitqueues;
