@@ -338,6 +338,11 @@
 
 #define KEY_MICMUTE		248	/* Mute / unmute the microphone */
 
+#define KEY_ANT_CONNECT         0x292  /* key for sar ant check */
+#define KEY_ANT_UNCONNECT       0x293  /* key for sar ant check */
+#define DIV_ANT_CONNECT         0X294  /* key for sar ant div check*/
+#define DIV_ANT_UNCONNECT       0X295  /* key for sar ant div check*/
+
 /* Code 255 is reserved for special needs of AT keyboard driver */
 
 #define BTN_MISC		0x100
@@ -798,7 +803,11 @@
 #define SW_MUTE_DEVICE		0x0e  /* set = device disabled */
 #define SW_PEN_INSERTED		0x0f  /* set = pen inserted */
 #define SW_MACHINE_COVER	0x10  /* set = cover closed */
-#define SW_MAX			0x10
+#define SW_HPHL_OVERCURRENT	0x11  /* set = over current on left hph */
+#define SW_HPHR_OVERCURRENT	0x12  /* set = over current on right hph */
+#define SW_MICROPHONE2_INSERT	0x13  /* set = inserted */
+#define SW_UNSUPPORT_INSERT	0x14  /* set = unsupported device inserted */
+#define SW_MAX			0x20
 #define SW_CNT			(SW_MAX+1)
 
 /*
