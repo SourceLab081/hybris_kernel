@@ -4733,7 +4733,8 @@ CONFIG_RAS=y
 CONFIG_ANDROID=y
 CONFIG_ANDROID_BINDER_IPC=y
 # CONFIG_ANDROID_BINDERFS is not set
-CONFIG_ANDROID_BINDER_DEVICES="binder,hwbinder,vndbinder,anbox-binder,anbox-hwbinder,anbox-vndbinder"
+# CONFIG_ANDROID_BINDER_DEVICES="binder,hwbinder,vndbinder,anbox-binder,anbox-hwbinder,anbox-vndbinder"
+CONFIG_ANDROID_BINDER_DEVICES="binder,vndbinder,hwbinder,puddlejumper,vndpuddlejumper,hwpuddlejumper"
 # CONFIG_ANDROID_BINDER_IPC_SELFTEST is not set
 # CONFIG_LIBNVDIMM is not set
 # CONFIG_DAX is not set
