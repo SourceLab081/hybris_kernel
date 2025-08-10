@@ -1327,7 +1327,7 @@ source "drivers/input/touchscreen/st/Kconfig"
 config TOUCHSCREEN_SYNAPTICS_DSX
 	bool "Synaptics DSX Touchscreen Driver"
 	depends on I2C
-	default n
+	default y
 	help
 	  Say Y here if you have a Synaptics Touchscreen.
 
@@ -1341,7 +1341,7 @@ source "drivers/input/touchscreen/synaptics_dsx/Kconfig"
 config TOUCHSCREEN_SYNAPTICS_TCM
 	bool "Synaptics TCM Touchscreen Driver"
 	depends on I2C
-	default n
+	default y
 	help
 	  Say Y here if you have a Synaptics Touchscreen.
 
@@ -1350,22 +1350,34 @@ config TOUCHSCREEN_SYNAPTICS_TCM
 	  To compile this driver as a module, choose M here: the
 	  module will be called synaptics_tcm.
 
+source "drivers/input/touchscreen/xiaomi/Kconfig"
+
+source "drivers/input/touchscreen/ft3418_i2c/Kconfig"
+
+source "drivers/input/touchscreen/nt36525b_spi/Kconfig"
+
 source "drivers/input/touchscreen/synaptics_tcm/Kconfig"
 
-source "drivers/input/touchscreen/focaltech_touch_n10/Kconfig"
-
-config TOUCHSCREEN_HIMAX_CHIPSET
-	bool "Himax touchpanel CHIPSET"
-	depends on I2C
-	help
-	  Say Y here if you have a Himax CHIPSET touchscreen.
-	  HIMAX controllers are multi touch controllers which can
-	  report 10 touches at a time.
-
-	  If unsure, say N.
-
-source "drivers/input/touchscreen/hxchipset/Kconfig"
+source "drivers/input/touchscreen/focaltech_touch/Kconfig"
 
 source "drivers/input/touchscreen/nt36xxx/Kconfig"
+
+source "drivers/input/touchscreen/ft8006s_spi/Kconfig"
+
+config TOUCHSCREEN_COMMON
+    bool "touchscreen for xiaomi project"
+	 depends on I2C
+	 default n
+	 help
+	Say Y here if you have a xiaomi touchscreen and want to enable support for the built-in touchscreen.
+
+config TP_COMMON
+	bool "Common touchscreen interface to interact with userspace"
+	default y
+	help
+	  Say Y here if you want to control touchpanel features via
+	  /sys/touchpanel.
+
+	  If unsure, say N.
 
 endif
