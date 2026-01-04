@@ -122,12 +122,7 @@ void power_supply_changed(struct power_supply *psy)
 	psy->changed = true;
 	pm_stay_awake(&psy->dev);
 	spin_unlock_irqrestore(&psy->changed_lock, flags);
-
-#if defined(CONFIG_TCT_PM7250_COMMON)
-	queue_work(private_chg_wq, &psy->changed_work);
-#else
 	schedule_work(&psy->changed_work);
-#endif
 }
 EXPORT_SYMBOL_GPL(power_supply_changed);
 
@@ -364,7 +359,8 @@ static int __power_supply_is_system_supplied(struct device *dev, void *data)
 			return 0;
 
 	(*count)++;
-	if (psy->desc->type != POWER_SUPPLY_TYPE_BATTERY)
+	if (psy->desc->type != POWER_SUPPLY_TYPE_BATTERY &&
+	    psy->desc->type != POWER_SUPPLY_TYPE_BMS)
 		if (!psy->desc->get_property(psy, POWER_SUPPLY_PROP_ONLINE,
 					&ret))
 			return ret.intval;
@@ -491,8 +487,6 @@ EXPORT_SYMBOL_GPL(power_supply_get_by_name);
  */
 void power_supply_put(struct power_supply *psy)
 {
-	might_sleep();
-
 	atomic_dec(&psy->use_cnt);
 	put_device(&psy->dev);
 }

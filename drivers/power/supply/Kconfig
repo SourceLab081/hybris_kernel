@@ -646,18 +646,15 @@ config CHARGER_CROS_USBPD
 	  what is connected to USB PD ports from the EC and converts
 	  that into power_supply properties.
 
-config BATTERY_BQ27541_HDQ
-       tristate "BQ27541 battery driver"
-       depends on OF
-       help
-         Say Y here to enable support for batteries with BQ27541 (HDQ) chips.
-
-config BATTERY_QNOVO_CHARGE_ALGO
-       tristate "Qnovo charge algorithm "
-       depends on OF
-       help
-         Say Y here to enable support for Qnovo charge algorithm.
+config NOPMI_CHARGER
+	tristate "NOPMI Charger Support"
+	depends on I2C
+	help
+	  Say Y to include support for NOPMI Charger.
 
 source "drivers/power/supply/qcom/Kconfig"
+source "drivers/power/supply/maxim/Kconfig"
+source "drivers/power/supply/nopmi/Kconfig"
+source "drivers/power/supply/battery_secret/Kconfig"
 
 endif # POWER_SUPPLY
